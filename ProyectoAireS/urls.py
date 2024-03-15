@@ -20,19 +20,26 @@ from django.urls import include
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
+from LimsAire import views
+
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-]
+    path('', views.home, name='home'),
+    path('signup/', views.signup, name='signup'),
+    path('crear_parametro/', views.crear_parametro, name='crear_parametro'),
+    path('listar_parametros/', views.listar_parametros, name='listar_parametros'),
+    path('listar_parametros/<int:parametro_id>/', views.parametro_detail, name='parametro_detail'),
+    path('listar_parametros/<int:parametro_id>/delete', views.eliminar_parametro, name='eliminar_parametro'),
+    path('crear_unidad/', views.crear_unidad, name='crear_unidad'),
+    path('listar_unidades/', views.listar_unidades, name='listar_unidades'),
+    path('listar_unidades/<int:unidad_id>/', views.unidad_detail, name='unidad_detail'),
+    path('listar_unidades/<int:unidad_id>/delete', views.eliminar_unidad, name='eliminar_unidad'),
+    path('crear_factor/', views.crear_factor, name='crear_factor'),
+    path('logout/', views.signout, name='logout'),
+    path('signin/', views.signin, name='signin'),
 
-urlpatterns += [
-    path('LimsAire/', include('LimsAire.urls')),
+    
 ]
-
-urlpatterns += [
-    path('', RedirectView.as_view(url='LimsAire/', permanent=True)),
-]
-
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

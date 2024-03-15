@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<main class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h1 class="text-center display-3 py-5">Listado de parametros</h1>
+            <header class="d-flex  justify-content-between">
+                <p><b>nombre de parámetro</b></p>
+                <p><b>símbolo de parámetro</b></p>
+                <p><b>peso molecular (mg/l)</b></p>
+            </header>
+            <ul class="list-group">
+                {% for parametro in lista_parametros %}
+                    <div class="d-flex  justify-content-between">
+                        <p><a href="{% url 'parametro_detail' parametro.id %}">{{parametro.nombre}}</a></p>
+                        <p>{{parametro.simbolo}}</p>
+                        <p>{{parametro.pmolecular}}</p>
+                    </div> 
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</main>
+
+{% endblock %}
+
+
+

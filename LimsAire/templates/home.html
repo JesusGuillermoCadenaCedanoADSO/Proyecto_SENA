@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if  not user.is_authenticated %}
+
+
+<main class="container py-5">
+    <section class="card card-body">
+        <h1 class="display-1 text-center">LIMS AIRE</h1>
+        <p>Aplicacion que administra resultados de mediciones de parámetros de matriz ambiental aire</p>
+        <div class="text-center">
+            <a class="btn btn-secondary" href="/signin/">
+                Ingresar
+            </a>
+            <a class="btn btn-dark" href="/signup/">
+                Registrarse
+            </a>
+        </div>
+    </section>
+</main>
+{% endif %}
+{% endblock %}

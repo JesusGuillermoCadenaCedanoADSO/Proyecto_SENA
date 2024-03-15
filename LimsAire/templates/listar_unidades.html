@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<main class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h1 class="text-center display-3 py-5">Listado de unidades de medición</h1>
+            <header class="d-flex  justify-content-between">
+                <p><b>nombre de unidad</b></p>
+                <p><b>símbolo de unidad</b></p>
+            </header>
+            <ul class="list-group">
+                {% for unidad in lista_unidades %}
+                    <div class="d-flex justify-content-between">
+                        <p><a href="{% url 'unidad_detail' unidad.id %}">{{unidad.nombre}}</a></p>
+                        <p>{{unidad.simbolo}}</p>
+                    </div>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</main>
+
+{% endblock %}
+
+
+

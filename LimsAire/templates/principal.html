@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="nav-aplicacion">
+        <ul class ="lista-navegacion">
+            <li class ="item-navegacion"><a href="#">Unidades</a>
+                <ul class="menu-desplegable">
+                    <li class="item-desplegable"><a href="paginas/lista_unidad.html">Lista unidades</a></li>
+                    <li class="item-desplegable"><a href="paginas/crear_unidad.html">Crear unidad</a></li>
+                </ul>
+            </li>
+            <li class ="item-navegacion"><a href="#">Parametros</a>
+                <ul class="menu-desplegable">
+                    <li class="item-desplegable"><a href="paginas/lista_parametro.html">Lista Parametros</a></li>
+                    <li class="item-desplegable"><a href="paginas/crear_parametro.html">Crear Parametro</a></li>
+                </ul>
+            </li>
+            <li class ="item-navegacion"><a href="#">Factores</a>
+                <ul class="menu-desplegable">
+                    <li class="item-desplegable"><a href="paginas/lista_factor.html">Lista Factores</a></li>
+                    <li class="item-desplegable"><a href="paginas/crear_factor.html">Crear Factores</a></li>
+                </ul>
+            </li>
+            <li class ="item-navegacion"><a href="#">Cadenas</a>
+                <ul class="menu-desplegable">
+                    <li class="item-desplegable"><a href="paginas/lista_cadena.html">Lista Cadenas</a></li>
+                    <li class="item-desplegable"><a href="paginas/crear_cadena.html">Crear Cadenas</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    
+
+{% endblock %}

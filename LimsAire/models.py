@@ -3,9 +3,6 @@ from django.db import models
 # Create your models here.
 from django.urls import reverse # Used in get_absolute_url() to get URL for specified ID
 import uuid
-
-from django.db.models import UniqueConstraint # Constrains fields to unique values
-from django.db.models.functions import Lower # Returns lower cased value of field
 from django.contrib.auth.models import User
 
 
@@ -32,10 +29,9 @@ class Parametros(models.Model):
 
 
 class UnidadDeMedicion(models.Model):
-    idunidad = models.UUIDField(primary_key=True,default=uuid.uuid4,help_text='identificador de unidad de medicion')
+    #idunidad = models.UUIDField(primary_key=True,default=uuid.uuid4,help_text='identificador de unidad de medicion')
     nombre = models.CharField(max_length=45)
     simbolo = models.CharField(max_length=45)
-    # fecha_generacion = models.DateField()
     fechacreacion = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -50,9 +46,7 @@ class UnidadDeMedicion(models.Model):
 
 
 class FactorDeConversion(models.Model):
-    parametros = models.ForeignKey(Parametros, on_delete=models.RESTRICT)
-    # unidadorigen = models.SmallIntegerField()
-    # unidaddestino = models.SmallIntegerField()
+    parametro = models.ForeignKey(Parametros, on_delete=models.RESTRICT)
     unidad_origen = models.ForeignKey(UnidadDeMedicion, related_name='unidad_origen', default=1,
                                       on_delete=models.RESTRICT)
     unidad_destino = models.ForeignKey(UnidadDeMedicion, related_name='unidad_destino', default=1,
@@ -63,7 +57,7 @@ class FactorDeConversion(models.Model):
 
 
     def __str__(self):
-        return self.parametros.nombre + ' de ' + self.unidad_origen.simbolo + ' a ' + self.unidad_destino.simbolo
+        return self.parametro.nombre + ' de ' + self.unidad_origen.simbolo + ' a ' + self.unidad_destino.simbolo
 
     def get_absolute_url(self):
         return reverse('factor-conversion-detail', args=[str(self.id)])
@@ -96,20 +90,7 @@ class CadenaDeCustodia(models.Model):
         return reverse('cadena-de-custodia-detail', args=[str(self.id)])
 
 
-# class AsignacionesDeParametros(models.Model):
-#     parametros = models.ForeignKey(Parametros, on_delete=models.RESTRICT)
-#     cadena_de_custodia = models.ForeignKey(CadenaDeCustodia, on_delete=models.RESTRICT)
-#     fechacreacion = models.DateTimeField(auto_now_add=True)
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#
-#     def __str__(self):
-#         return self.parametros.nombre + ' de cadena ' + self.cadena_de_custodia.idcadena
-
-
 class Mediciones(models.Model):
-    # asignaciones_parametros = models.ForeignKey(AsignacionesDeParametros, on_delete=models.RESTRICT)
-    # cadena_custodia = models.ManyToManyField(CadenaDeCustodia, help_text='Seleccionar cadena de custodia')
-
     cadena_custodia = models.ForeignKey(CadenaDeCustodia, default=1, on_delete=models.RESTRICT,
                                         help_text='Seleccionar cadena de custodia')
     parametro = models.ForeignKey(Parametros, default=1, on_delete=models.RESTRICT, help_text='Seleccionar parametro')
@@ -125,14 +106,9 @@ class Mediciones(models.Model):
     fechacreacion = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     # Asignar por defecto el valor de resultado al resultado_conversion
-    #     self.resultado_conversion = models.FloatField(default=self.resultado)
-    #     print('valor por defecto: ', str(self.resultado_conversion))
+
 
     def save(self, *args, **kwargs):
-        # Consultar el factor de conversión
         try:
             factor_conversion = FactorDeConversion.objects.get(
                 parametros=self.parametro,
@@ -140,8 +116,6 @@ class Mediciones(models.Model):
                 unidad_destino=self.unidad_de_conversion
             )
         except FactorDeConversion.DoesNotExist:
-            # self.resultado_conversion = self.resultado
-            # self.unidad_de_conversion = self.unidad_de_medida
             raise ValueError("No se encontró un factor de conversión para los parámetros especificados.")
         else:
         # Calcular el resultado de la conversión
@@ -153,10 +127,6 @@ class Mediciones(models.Model):
 
 
     def __str__(self):
-        # return "medicion de " + self.asignaciones_parametros.parametros.nombre + \
-        #        '   de plan ' + self.asignaciones_parametros.cadena_de_custodia.idcadena + \
-        #        ' tomada el dia ' + str(self.fechamedicion) + ' a las ' + str(self.hora) \
-        #        + ' por ' + self.user.username
         return "medicion de " + \
          '  plan ' + self.cadena_custodia.idcadena + \
             ' de parametro ' + self.parametro.nombre + \

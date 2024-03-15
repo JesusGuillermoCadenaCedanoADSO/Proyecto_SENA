@@ -1,0 +1,98 @@
+* {
+    box-sizing: border-box;
+}
+
+body{
+    margin:0;
+    padding:0;
+    font-family:sans-serif;
+}
+
+nav,
+main,
+header,
+footer{
+    padding: 16px;
+    text-align: center;
+}
+
+/* para campos de formulario */
+
+label {
+    display: inline-block;
+    width:100px;
+}
+
+.container form .fields{
+    display:flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap:wrap;
+    padding: 20px;
+}
+
+.container form .fields .input-field {
+    padding: 5px;
+}
+
+/* para barra de navegacion */
+
+.lista-navegacion{
+    background-color: teal;
+    align-items: center;
+    min-height: 8vh;
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    justify-content: space-around;
+    width: 100%;
+}
+
+.lista-navegacion{
+    margin:0;
+    padding:0;
+    list-style: none;
+}
+
+
+
+.menu-desplegable li{
+    float:left;
+    width: 150px;
+    height: 40px;
+    background-color: darkgrey;
+    opacity:.9;
+    line-height: 40px;
+    text-align:center;
+    font-size:15px;
+}
+
+
+
+.lista-navegacion li a{
+    text-decoration: none;
+    color: white;
+    display:block;
+}
+
+
+
+.lista-navegacion .item-navegacion .menu-desplegable .item-desplegable a:hover{
+    background-color:  rgb(27, 5, 230);
+    display: block;
+    z-index: 1;
+}
+
+.lista-navegacion .item-navegacion:hover .menu-desplegable {
+    z-index: 1;
+}
+
+.lista-navegacion li ul li{
+    display:none;
+
+}
+
+.lista-navegacion .item-navegacion:hover ul li{
+    display:block ;
+}
+

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LIMS AIRE</title>
+    <link rel="stylesheet" href="{% static 'style/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">LIMS AIRE</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a href="/" class="nav-link">Inicio</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a href="/logout" class="nav-link">Salir</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="/signup" class="nav-link">Registrarse</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/signin" class="nav-link">Ingresar</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% if user.is_authenticated %}
+    <nav class="nav-aplicacion">
+        <ul class ="lista-navegacion">
+            <li class ="item-navegacion"><a href="#">Unidades</a>
+                <ul class="menu-desplegable">
+                    <li class="item-desplegable"><a href="/listar_unidades">Lista unidades</a></li>
+                    <li class="item-desplegable"><a href="/crear_unidad">Crear unidad</a></li>
+                </ul>
+            </li>
+            <li class ="item-navegacion"><a href="#">Parametros</a>
+                <ul class="menu-desplegable">
+                    <li class="item-desplegable"><a href="/listar_parametros">Lista Parametros</a></li>
+                    <li class="item-desplegable"><a href="/crear_parametro">Crear Parametro</a></li>
+                </ul>
+            </li>
+            <li class ="item-navegacion"><a href="#">Factores</a>
+                <ul class="menu-desplegable">
+                    <li class="item-desplegable"><a href="paginas/lista_factor.html">Lista Factores</a></li>
+                    <li class="item-desplegable"><a href="/crear_factor">Crear Factor</a></li>
+                </ul>
+            </li>
+            <li class ="item-navegacion"><a href="#">Cadenas</a>
+                <ul class="menu-desplegable">
+                    <li class="item-desplegable"><a href="paginas/lista_cadena.html">Lista Cadenas</a></li>
+                    <li class="item-desplegable"><a href="paginas/crear_cadena.html">Crear Cadenas</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+
+    
+    
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
