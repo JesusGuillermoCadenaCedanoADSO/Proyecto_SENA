@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<main class="container">
+    <h1 class="text-center display-3 py-5">Listado de cadenas de custodia</h1>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>id de cadena</th>
+                    <th>cliente</th>
+                    <th>proyecto</th>
+                    <th>ciudad</th>
+                    <th>técnico de campo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cadena in lista_cadenas %}
+                    <tr>
+                        <th><a href="{% url 'cadena_detail' cadena.id %}">{{cadena.idcadena}}</a></th>
+                        <th>{{cadena.cliente}}</th>
+                        <th>{{cadena.proyecto}}</th>
+                        <th>{{cadena.ciudad}}</th>
+                        <th>{{cadena.muestreado_por}}</th>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+
+{% endblock %}
+
+
+

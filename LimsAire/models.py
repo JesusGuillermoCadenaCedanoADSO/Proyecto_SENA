@@ -37,7 +37,7 @@ class UnidadDeMedicion(models.Model):
 
     def __str__(self):
         """cadena que representa al parámetro."""
-        return self.nombre + " simbolo : " + self.simbolo
+        return self.nombre + " "+"(" + self.simbolo + ")"
 
     def get_absolute_url(self):
         """retorna la url del parametro."""
@@ -65,8 +65,8 @@ class FactorDeConversion(models.Model):
 
 class CadenaDeCustodia(models.Model):
     idcadena = models.CharField('PM',
-        max_length=20,
-        help_text="Identificador de cadena de custodia)"
+        max_length=20
+        # help_text="Identificador de cadena de custodia)"
     )
     parametro = models.ManyToManyField(Parametros, help_text='Seleccionar parámetro')
     cliente = models.CharField(max_length=45)
@@ -78,7 +78,9 @@ class CadenaDeCustodia(models.Model):
     coordenada_este = models.CharField(max_length=45)
     altura = models.FloatField()
     observaciones = models.TextField(
-        max_length=1000, help_text="Ingrese una breve descripción de la toma de muestras")
+        max_length=1000
+        # help_text="Ingrese una breve descripción de la toma de muestras"
+        )
     fechacreacion = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -111,7 +113,7 @@ class Mediciones(models.Model):
     def save(self, *args, **kwargs):
         try:
             factor_conversion = FactorDeConversion.objects.get(
-                parametros=self.parametro,
+                parametro=self.parametro,
                 unidad_origen=self.unidad_de_medida,
                 unidad_destino=self.unidad_de_conversion
             )

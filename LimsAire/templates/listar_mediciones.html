@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<main class="container">
+    <h1 class="text-center display-3 py-5">Listado de mediciones</h1>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>id de cadena</th>
+                    <th>parametro</th>
+                    <th>punto</th>
+                    <th>resultado</th>
+                    <th>unidad</th>
+                    <th>resultado convertido</th>
+                    <th>unidad</th>
+                    <th>fecha de medida</th>
+                    <th>hora de medida</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for medicion in lista_mediciones %}
+                <tr>
+                    <th><a href="{% url 'medicion_detail' medicion.id %}">{{medicion.cadena_custodia.idcadena}}</a></th>
+                    <th>{{medicion.parametro}}</th>
+                    <th>{{medicion.cadena_custodia.punto_de_muestreo}}</th>
+                    <th>{{medicion.resultado}}</th>
+                    <th>{{medicion.unidad_de_medida.simbolo}}</th>
+                    <th>{{medicion.resultado_conversion}}</th>
+                    <th>{{medicion.unidad_de_conversion.simbolo}}</th>
+                    <th>{{medicion.fechamedicion}}</th>
+                    <th>{{medicion.hora}}</th>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+
+{% endblock %}
+
+
+

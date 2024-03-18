@@ -3,22 +3,24 @@
 {% block content %}
 
 <main class="container">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <h1 class="text-center display-3 py-5">Listado de unidades de medición</h1>
-            <header class="d-flex  justify-content-between">
-                <p><b>nombre de unidad</b></p>
-                <p><b>símbolo de unidad</b></p>
-            </header>
-            <ul class="list-group">
-                {% for unidad in lista_unidades %}
-                    <div class="d-flex justify-content-between">
-                        <p><a href="{% url 'unidad_detail' unidad.id %}">{{unidad.nombre}}</a></p>
-                        <p>{{unidad.simbolo}}</p>
-                    </div>
-                {% endfor %}
-            </ul>
-        </div>
+    <h1 class="text-center display-3 py-5">Listado de unidades de medición</h1>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>nombre de unidad</th>
+                    <th>símbolo de unidad</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for unidad in lista_unidades %}
+                <tr>
+                    <th><a href="{% url 'unidad_detail' unidad.id %}">{{unidad.nombre}}</a></th>
+                    <th>{{unidad.simbolo}}</th>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 </main>
 

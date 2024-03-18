@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<main class="container">
+    <h1 class="text-center display-3 py-5">Listado de factores de conversión</h1>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre parámetro</th>
+                    <th>Unidad de origen</th>
+                    <th>Unidad de conversión</th>
+                    <th>Factor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for factor in lista_factores %}
+                    <tr>
+                        <th><a href="{% url 'factor_detail' factor.id %}">{{factor.parametro}}</a></th>
+                        <th>{{factor.unidad_origen}}</th>
+                        <th>{{factor.unidad_destino}}</th>
+                        <th>{{factor.factor}}</th>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+
+{% endblock %}
+
+
+
