@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from django.urls import include
 from django.views.generic import RedirectView
 from django.conf import settings
@@ -51,7 +51,8 @@ urlpatterns = [
     path('logout/', views.signout, name='logout'),
     path('signin/', views.signin, name='signin'),
     
-
+   # path('unidades/',include('LimsAire.urls')),
+   # path('listar_unidades/api/v1/', views.FVistaUnidadApi, name='listar_unidades'),
     
 ]
 

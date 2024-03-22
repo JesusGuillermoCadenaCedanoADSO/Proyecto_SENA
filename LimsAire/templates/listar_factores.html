@@ -3,11 +3,25 @@
 {% block content %}
 
 <main class="container">
+    <form id="searchForm" class="mb-3">
+        <div class="input-group">
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar parámetro por nombre">
+            <button type="button" class="btn btn-primary buscar">Buscar</button>
+        </div>
+    </form>
     <h1 class="text-center display-3 py-5">Listado de factores de conversión</h1>
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
     <div class="table-responsive">
         <table class="table table-striped">
             <thead class="table-dark">
                 <tr>
+                    <th>id del parámetro</th>
                     <th>Nombre parámetro</th>
                     <th>Unidad de origen</th>
                     <th>Unidad de conversión</th>
@@ -17,10 +31,11 @@
             <tbody>
                 {% for factor in lista_factores %}
                     <tr>
-                        <th><a href="{% url 'factor_detail' factor.id %}">{{factor.parametro}}</a></th>
-                        <th>{{factor.unidad_origen}}</th>
-                        <th>{{factor.unidad_destino}}</th>
-                        <th>{{factor.factor}}</th>
+                        <td>{{factor.id}}</td>
+                        <td><a href="{% url 'factor_detail' factor.id %}">{{factor.parametro}}</a></th>
+                        <td>{{factor.unidad_origen}}</td>
+                        <td>{{factor.unidad_destino}}</td>
+                        <td>{{factor.factor}}</td>
                     </tr>
                 {% endfor %}
             </tbody>

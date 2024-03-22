@@ -6,7 +6,6 @@
         <div class="row">
             <div class="col-md-4 offset-md-4">
                 <h1 class="text-secondary">{{medicion.cadena_custodia}}</h1>
-                {{error}}
                 <form method="POST">
                     {% csrf_token %}
                     {{form.as_p}}

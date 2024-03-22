@@ -4,6 +4,13 @@
     <main class="container">
         <div class="row">
             <div class="col-md-4 offset-md-4 mt-5">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
                 <form action="/crear_medicion/" method="POST" class="card card-body">
                     <h1>Crear medición</h1>
                     {{error}}

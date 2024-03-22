@@ -3,28 +3,64 @@
 {% block content %}
 
 <main class="container">
+    <form id="searchForm" class="mb-3">
+        <div class="input-group">
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar unidad por nombre">
+            <button type="button" class="btn btn-primary buscar">Buscar</button>
+        </div>
+    </form>
+
     <h1 class="text-center display-3 py-5">Listado de unidades de medición</h1>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
     <div class="table-responsive">
         <table class="table table-striped">
             <thead class="table-dark">
                 <tr>
+                    <th>id de unidad</th>
                     <th>nombre de unidad</th>
                     <th>símbolo de unidad</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="unitTableBody">
             {% for unidad in lista_unidades %}
                 <tr>
-                    <th><a href="{% url 'unidad_detail' unidad.id %}">{{unidad.nombre}}</a></th>
-                    <th>{{unidad.simbolo}}</th>
+                    <td>{{unidad.id}}</td>
+                    <td><a href="{% url 'unidad_detail' unidad.id %}">{{unidad.nombre}}</a></td>
+                    <td>{{unidad.simbolo}}</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
 </main>
+<script>
+// function searchUnit() {
+//     var input = document.getElementById("searchInput").value.toLowerCase();
+//     var rows = document.querySelectorAll(".table.table-striped tbody tr");
+
+//     var found = false;
+//     rows.forEach(function(row) {
+//         var name = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
+//         if (name.includes(input)) {
+//             row.style.display = "table-row";
+//             found = true;
+//         } else {
+//             row.style.display = "none";
+//         }
+//     });
+
+//     if (!found) {
+//         alert("No se encontró la unidad con el nombre solicitado.");
+//     }
+// }
+</script>
 
 {% endblock %}
-
-
-

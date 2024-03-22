@@ -3,12 +3,24 @@
 {% block content %}
 
 <main class="container">
+    <div class="input-group">
+        <input type="text" id="searchInput" class="form-control" placeholder="Buscar cadena por nombre">
+        <button type="button" class="btn btn-primary buscar">Buscar</button>
+    </div>
     <h1 class="text-center display-3 py-5">Listado de mediciones</h1>
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
     <div class="table-responsive">
         <table class="table table-striped">
             <thead class="table-dark">
                 <tr>
-                    <th>id de cadena</th>
+                    <th>id de medición</th>
+                    <th>código de cadena</th>
                     <th>parametro</th>
                     <th>punto</th>
                     <th>resultado</th>
@@ -22,15 +34,16 @@
             <tbody>
             {% for medicion in lista_mediciones %}
                 <tr>
-                    <th><a href="{% url 'medicion_detail' medicion.id %}">{{medicion.cadena_custodia.idcadena}}</a></th>
-                    <th>{{medicion.parametro}}</th>
-                    <th>{{medicion.cadena_custodia.punto_de_muestreo}}</th>
-                    <th>{{medicion.resultado}}</th>
-                    <th>{{medicion.unidad_de_medida.simbolo}}</th>
-                    <th>{{medicion.resultado_conversion}}</th>
-                    <th>{{medicion.unidad_de_conversion.simbolo}}</th>
-                    <th>{{medicion.fechamedicion}}</th>
-                    <th>{{medicion.hora}}</th>
+                    <td>{{medicion.id}}</td>
+                    <td><a href="{% url 'medicion_detail' medicion.id %}">{{medicion.cadena_custodia.idcadena}}</a></td>
+                    <td>{{medicion.parametro}}</td>
+                    <td>{{medicion.cadena_custodia.punto_de_muestreo}}</td>
+                    <td>{{medicion.resultado}}</td>
+                    <td>{{medicion.unidad_de_medida.simbolo}}</td>
+                    <td>{{medicion.resultado_conversion}}</td>
+                    <td>{{medicion.unidad_de_conversion.simbolo}}</td>
+                    <td>{{medicion.fechamedicion}}</td>
+                    <td>{{medicion.hora}}</td>
                 </tr>
             {% endfor %}
             </tbody>

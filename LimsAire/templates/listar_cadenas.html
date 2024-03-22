@@ -3,12 +3,24 @@
 {% block content %}
 
 <main class="container">
+    <div class="input-group">
+        <input type="text" id="searchInput" class="form-control" placeholder="Buscar cadena por nombre">
+        <button type="button" class="btn btn-primary buscar">Buscar</button>
+    </div>
     <h1 class="text-center display-3 py-5">Listado de cadenas de custodia</h1>
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
     <div class="table-responsive">
         <table class="table table-striped">
             <thead class="table-dark">
                 <tr>
                     <th>id de cadena</th>
+                    <th>código de cadena</th>
                     <th>cliente</th>
                     <th>proyecto</th>
                     <th>ciudad</th>
@@ -18,11 +30,12 @@
             <tbody>
                 {% for cadena in lista_cadenas %}
                     <tr>
-                        <th><a href="{% url 'cadena_detail' cadena.id %}">{{cadena.idcadena}}</a></th>
-                        <th>{{cadena.cliente}}</th>
-                        <th>{{cadena.proyecto}}</th>
-                        <th>{{cadena.ciudad}}</th>
-                        <th>{{cadena.muestreado_por}}</th>
+                        <td>{{cadena.id}}</td>
+                        <td><a href="{% url 'cadena_detail' cadena.id %}">{{cadena.idcadena}}</a></td>
+                        <td>{{cadena.cliente}}</td>
+                        <td>{{cadena.proyecto}}</td>
+                        <td>{{cadena.ciudad}}</td>
+                        <td>{{cadena.muestreado_por}}</td>
                     </tr>
                 {% endfor %}
             </tbody>

@@ -3,11 +3,25 @@
 {% block content %}
 
 <main class="container">
+    <form id="searchForm" class="mb-3">
+        <div class="input-group">
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar parámetro por nombre">
+            <button type="button" class="btn btn-primary buscar">Buscar</button>
+        </div>
+    </form>
     <h1 class="text-center display-3 py-5">Listado de parametros</h1>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
         <div class="table-responsive">
         <table class="table table-striped">
             <thead class="table-dark">
                 <tr>
+                    <th>id del parámetro</th>
                     <th>Nombre del parámetro</th>
                     <th>Símbolo del parámetro</th>
                     <th>Peso molecular (mg/l)</th>
@@ -16,9 +30,10 @@
             <tbody>
                 {% for parametro in lista_parametros %}
                     <tr>
-                        <th><a href="{% url 'parametro_detail' parametro.id %}">{{parametro.nombre}}</a></th>
-                        <th>{{parametro.simbolo}}</th>
-                        <th>{{parametro.pmolecular}}</th>
+                        <td>{{parametro.id}}</td>
+                        <td><a href="{% url 'parametro_detail' parametro.id %}">{{parametro.nombre}}</a></td>
+                        <td>{{parametro.simbolo}}</td>
+                        <td>{{parametro.pmolecular}}</td>
                     </tr>
                 {% endfor %}
             </tbody>

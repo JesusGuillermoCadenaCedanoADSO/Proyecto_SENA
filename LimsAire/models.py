@@ -121,7 +121,7 @@ class Mediciones(models.Model):
             raise ValueError("No se encontró un factor de conversión para los parámetros especificados.")
         else:
         # Calcular el resultado de la conversión
-            self.resultado_conversion = self.resultado * factor_conversion.factor
+            self.resultado_conversion = round(self.resultado * factor_conversion.factor,3)
         finally:
             super().save(*args, **kwargs)
             print('valor ingresado: ', self.resultado)
