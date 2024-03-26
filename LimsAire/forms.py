@@ -57,7 +57,7 @@ class CadenaForm(forms.ModelForm):
                     'observaciones'
                 ]
         widgets = {
-            'idcadena': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Escribir id de cadena'}),
+            'idcadena': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Escribir código de cadena'}),
             'cliente': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Escribir nombre de cliente'}),
             'proyecto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Escribir nombre de proyecto'}),
             'ciudad': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Escribir nombre de ciudad'}),

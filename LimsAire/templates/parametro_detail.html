@@ -5,6 +5,13 @@
     <main class="container">
         <div class="row">
             <div class="col-md-4 offset-md-4">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
                 <h1 class="text-secondary">{{parametro.nombre}}</h1>
                 <form method="POST">
                     {% csrf_token %}

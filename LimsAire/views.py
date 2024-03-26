@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
+
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.contrib.messages import get_messages 
@@ -17,16 +18,21 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework import viewsets
-from .serializers import UnidadDeMedicionSerializer, ParametroSerializer, FactorSerializer, CadenaSerializer, MedicionSerializer
+from .serializers import UnidadDeMedicionSerializer, ParametroSerializer, FactorSerializer, CadenaSerializer, MedicionSerializer 
 from django.http import JsonResponse
 from rest_framework.views import APIView
+from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import get_token
+
 import json
+
 
 # Tu código de vista aquí
 
 
 
 from .models import Parametros, UnidadDeMedicion, FactorDeConversion, CadenaDeCustodia, Mediciones
+
 
 # Create your views here.
 
@@ -42,33 +48,102 @@ def mi_vista(request,ruta):
         return redirect(ruta)
     
 
+#@csrf_exempt
+@api_view(['GET', 'POST'])
 def signup(request):
     if request.method == 'GET':
-        render(request, 'signup.html', {'form': UserCreationForm})
+        if not 'text/html' in request.META.get('HTTP_ACCEPT', ''):
+        #if request.META.get('HTTP_ACCEPT') == 'application/json':
+            # Lógica para solicitudes de API
+            data ={'mensaje':'Bienvenido al API endpoint registrarse'}
+            return Response(data)
+
+        # Lógica para solicitudes HTML
+        return render(request, 'signup.html', {'form': UserCreationForm})
+
     else:
-        if request.POST['password1'] == request.POST['password2']:
-            try:
-                user = User.objects.create_user(username=request.POST['username'], password=request.POST['password1'])
-                user.save()
+        if request.method == 'POST':
+            if request.content_type == 'application/json':
+                try:
+                    data = json.loads(request.body)
+                    username = data.get('username')
+                    password1 = data.get('password1')
+                    password2 = data.get('password2')
+                except json.JSONDecodeError:
+                    return JsonResponse({'error': 'Datos JSON inválidos'}, status=400)
+            else:
+                username = request.POST.get('username')
+                password1 = request.POST.get('password1')
+                password2 = request.POST.get('password2')
+            
+                if password1 != password2:
+                    if not 'text/html' in request.META.get('HTTP_ACCEPT', ''):
+                        return JsonResponse({'error': 'Las contraseñas no coinciden'}, status=400)
+                    else:
+                        return render(request, 'signup.html', {'form': UserCreationForm, 'error': 'Las constraseñas no coinciden'})
+
+            user = User.objects.create_user(username=username, password=password1)
+            user.save()
+            if not 'text/html' in request.META.get('HTTP_ACCEPT', ''):
+                return JsonResponse({'message': 'Usuario creado correctamente'})
+            else:
+                messages.success(request, 'Usuario creado correctamente')
+                return render(request, 'signup.html', {'form': UserCreationForm})
+        else:
+            return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+    
+
+@csrf_exempt
+@api_view(['GET', 'POST'])
+def signin(request):
+    if 'text/html' in request.META.get('HTTP_ACCEPT', ''):
+        if request.method == 'GET':
+            return render(request, 'signin.html', {'form': AuthenticationForm})
+        else:
+            user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+            if user is None:
+                return render(request, 'signin.html', {'form': AuthenticationForm,
+                                                    'error': 'Username or password is incorrect'})
+            else:
                 login(request, user)
                 return redirect('home')
-            except IntegrityError:
-                return render(request, 'signup.html', {'form': UserCreationForm, 'error': 'Este usuario ya está registrado'})
-        return render(request, 'signup.html', {'form': UserCreationForm, 'error': 'Las constraseñas no coinciden'})
-    return render(request, 'signup.html', {'form': UserCreationForm})
-
-
-def signin(request):
-    if request.method == 'GET':
-        return render(request, 'signin.html', {'form': AuthenticationForm})
     else:
-        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
-        if user is None:
-            return render(request, 'signin.html', {'form': AuthenticationForm,
-                                                   'error': 'Username or password is incorrect'})
+        if request.method == 'GET':
+            # Lógica para solicitudes GET
+            return JsonResponse({'message': 'Use a POST request to sign in.'})
+
+        elif request.method == 'POST':
+            # Lógica para solicitudes POST
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                print('exito')
+                print('usuario:',username)
+                print('contraseña:',password)
+                login(request, user)
+                return JsonResponse({'message': 'Successfully signed in.'})
+            else:
+                data=json.loads(request.body)
+                username = data.get('username')
+                password = data.get('password')
+                user = authenticate(request, username=username, password=password)
+                if user is not None:
+                    login(request, user)
+                    csrf_token = get_token(request)
+                    return JsonResponse({'message': 'Successfully signed in.',
+                    'token':csrf_token})
+                else:
+                    print('error')
+                    print('usuario:',username)
+                    print('contraseña:',password)
+                    return JsonResponse({'error': 'Username or password is incorrect.'}, status=400)
+
         else:
-            login(request, user)
-            return redirect('home')
+            # Manejo de otros tipos de solicitudes
+            return JsonResponse({'error': 'Unsupported request method.'}, status=405)
 
 @login_required
 def signout(request):
@@ -76,7 +151,7 @@ def signout(request):
     return redirect('home')
 
 @api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def crear_parametro(request):
     if 'text/html' in request.META.get('HTTP_ACCEPT', ''):
@@ -86,7 +161,6 @@ def crear_parametro(request):
             })
         else:
             try:
-                
                 form = ParametroForm(request.POST)
                 nuevo_parametro = form.save(commit=False)
                 nuevo_parametro.user = request.user
@@ -115,7 +189,7 @@ def crear_parametro(request):
 
 
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def listar_parametros(request):
     if request.method == 'GET':
@@ -127,7 +201,7 @@ def listar_parametros(request):
             return Response(serializer.data)
 
 @api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def parametro_detail(request, parametro_id):
     if 'text/html' in request.META.get('HTTP_ACCEPT', ''):
@@ -162,7 +236,7 @@ def parametro_detail(request, parametro_id):
 
 
 @api_view(['POST', 'DELETE'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def eliminar_parametro(request, parametro_id):
     parametro = get_object_or_404(Parametros, pk=parametro_id, user=request.user)
@@ -176,7 +250,7 @@ def eliminar_parametro(request, parametro_id):
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def crear_unidad(request):
     if 'text/html' in request.META.get('HTTP_ACCEPT', ''):
@@ -212,7 +286,7 @@ def crear_unidad(request):
 
 
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def listar_unidades(request):
     if request.method == 'GET':
@@ -227,7 +301,7 @@ def listar_unidades(request):
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def unidad_detail(request, unidad_id):
     if 'text/html' in request.META.get('HTTP_ACCEPT', ''):
@@ -261,7 +335,7 @@ def unidad_detail(request, unidad_id):
                 return Response(serializer.errors, status=400)
 
 @api_view(['POST', 'DELETE'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def eliminar_unidad(request, unidad_id):
     # Obtener la unidad a eliminar
@@ -282,7 +356,7 @@ def eliminar_unidad(request, unidad_id):
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def crear_factor(request):
     if 'text/html' in request.META.get('HTTP_ACCEPT', ''):
@@ -320,7 +394,7 @@ def crear_factor(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def listar_factores(request):
     if request.method == 'GET':
@@ -332,7 +406,7 @@ def listar_factores(request):
             return Response(serializer.data)
 
 @api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def factor_detail(request, factor_id):
     if 'text/html' in request.META.get('HTTP_ACCEPT', ''):
@@ -367,7 +441,7 @@ def factor_detail(request, factor_id):
 
 
 @api_view(['POST', 'DELETE'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def eliminar_factor(request, factor_id):
     factor = get_object_or_404(FactorDeConversion, pk=factor_id, user=request.user)
@@ -380,7 +454,7 @@ def eliminar_factor(request, factor_id):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def crear_cadena(request):
     if 'text/html' in request.META.get('HTTP_ACCEPT', ''):
@@ -425,7 +499,7 @@ def crear_cadena(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def listar_cadenas(request):
     if request.method == 'GET':
@@ -437,7 +511,7 @@ def listar_cadenas(request):
             return Response(serializer.data)
 
 @api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def cadena_detail(request, cadena_id):
     if 'text/html' in request.META.get('HTTP_ACCEPT', ''):
@@ -471,7 +545,7 @@ def cadena_detail(request, cadena_id):
                 return Response(serializer.errors, status=400)
 
 @api_view(['POST', 'DELETE'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def eliminar_cadena(request, cadena_id):
     cadena = get_object_or_404(CadenaDeCustodia, pk=cadena_id, user=request.user)
@@ -485,7 +559,7 @@ def eliminar_cadena(request, cadena_id):
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def crear_medicion(request):
     if 'text/html' in request.META.get('HTTP_ACCEPT', ''):
@@ -494,16 +568,36 @@ def crear_medicion(request):
                 'form': MedicionForm
             })
         else:
-            try:
-                form = MedicionForm(request.POST)
-                nuevo_medicion = form.save(commit=False)
-                nuevo_medicion.user = request.user
-                nuevo_medicion.save()
-                messages.success(request, '¡La medicion se ha creado exitosamente!')
-                return redirect('crear_medicion')
-            except ValueError:
+            form = MedicionForm(request.POST)
+            if form.is_valid():
+                datos_medicion = form.datos_medicion
+                nuevo_medicion = Mediciones(
+                        cadena_custodia=datos_medicion['cadena_custodia'],
+                        parametro=datos_medicion['parametro'],
+                        fechamedicion=datos_medicion['fechamedicion'],
+                        hora=datos_medicion['hora'],
+                        resultado=datos_medicion['resultado'],
+                        unidad_de_medida=datos_medicion['unidad_de_medida'],
+                        unidad_de_conversion=datos_medicion['unidad_de_conversion'],
+                        user=request.user
+                    )
+                
+                try:
+                        factor_conversion = FactorDeConversion.objects.get(
+                            parametro=nuevo_medicion.parametro,
+                            unidad_origen=nuevo_medicion.unidad_de_medida,
+                            unidad_destino=nuevo_medicion.unidad_de_conversion
+                        )
+                except FactorDeConversion.DoesNotExist:
+                    messages.warning(request, "No se encontró un factor de conversión para las unidades y el parámetro especificados.")
+                    return render(request, 'crear_medicion.html', {'form': form, 'error_message': "No se encontró un factor de conversión para las unidades y el parámetro especificados."})
+                else:
+                    nuevo_medicion.save()
+                    messages.success(request, '¡La medición se ha creado exitosamente!')
+                    return redirect('crear_medicion')
+            else:
                 messages.error(request, 'Ingresar datos válidos')
-                return render(request, 'crear_medicion.html', {'form': MedicionForm})
+                return render(request, 'crear_medicion.html', {'form': form})
     else:
         if request.method == 'GET':
             data = {
@@ -527,7 +621,7 @@ def crear_medicion(request):
 
 
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def listar_mediciones(request):
     if request.method == 'GET':
@@ -540,7 +634,7 @@ def listar_mediciones(request):
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def medicion_detail(request, medicion_id):
     if 'text/html' in request.META.get('HTTP_ACCEPT', ''):
@@ -549,17 +643,31 @@ def medicion_detail(request, medicion_id):
             form = MedicionForm(instance=medicion)
             return render(request, 'medicion_detail.html', {'medicion': medicion,'form':form})
         else:
-            try:
-                
-                medicion = get_object_or_404(Mediciones, pk=medicion_id, user=request.user)
-                form = MedicionForm(request.POST, instance=medicion)
+            medicion = get_object_or_404(Mediciones, pk=medicion_id, user=request.user)
+            form = MedicionForm(request.POST, instance=medicion)
+
+            # Validar el formulario
+            if form.is_valid():
+                try:
+                    factor_conversion = FactorDeConversion.objects.get(
+                        parametro=medicion.parametro,
+                        unidad_origen=medicion.unidad_de_medida,
+                        unidad_destino=medicion.unidad_de_conversion
+                    )
+                except FactorDeConversion.DoesNotExist:
+                    # Si no se encuentra un factor de conversión, agregar un mensaje de advertencia
+                    messages.warning(request, "No se encontró un factor de conversión para las unidades y el parámetro especificados.")
+                    return render(request, 'medicion_detail.html', {'medicion': medicion,'form':form})
+                    
+                # Si se encuentra un factor de conversión, guardar la medición
                 form.save()
-                mi_vista(request,'listar_mediciones')
-                messages.success(request, '¡La medición' + str(medicion_id) + ' se ha actualizado exitosamente!')
+                messages.success(request, f'¡La medición {medicion_id} se ha actualizado exitosamente!')
                 return redirect('listar_mediciones')
-            except ValueError:
+            else:
                 messages.error(request, 'Ingresar datos válidos')
                 return render(request, 'medicion_detail.html', {'medicion': medicion, 'form': form})
+
+                
     else:
         if request.method == 'GET':
             lista_mediciones = Mediciones.objects.filter(user=request.user, pk=medicion_id)
@@ -575,7 +683,7 @@ def medicion_detail(request, medicion_id):
                 return Response(serializer.errors, status=400)
 
 @api_view(['POST', 'DELETE'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def eliminar_medicion(request, medicion_id):
     medicion = get_object_or_404(Mediciones, pk=medicion_id, user=request.user)
@@ -588,7 +696,7 @@ def eliminar_medicion(request, medicion_id):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# funcion experimental para probar api no logro autenticar correctamente al usuario
+# funciones experimentales para probar api 
 
 @api_view(['GET', 'POST'])
 @authentication_classes([SessionAuthentication, BasicAuthentication])

@@ -74,6 +74,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ProyectoAireS.wsgi.application'
 
+#ASGI_APPLICATION = 'ProyectoAireS.asgi.application'
+
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -138,6 +140,6 @@ REST_FRAMEWORK={
         #'rest_framework.authentication.TokenAuthentication',
         # Otras clases de autenticación...
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        #'rest_framework.authentication.SessionAuthentication',
     ),
 }

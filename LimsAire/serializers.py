@@ -22,7 +22,9 @@ class CadenaSerializer(serializers.ModelSerializer):
         model = CadenaDeCustodia
         fields = '__all__'
 
+
 class MedicionSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Mediciones
         fields = '__all__'
@@ -39,8 +41,11 @@ class MedicionSerializer(serializers.ModelSerializer):
                 unidad_origen=unidad_de_medida,
                 unidad_destino=unidad_de_conversion
             )
+            
         except FactorDeConversion.DoesNotExist:
+
             raise serializers.ValidationError("No se encontró un factor de conversión para las unidades y el parámetro especificados.")
 
         # Si el factor de conversión existe, continuar con la creación de la medición
         return super().create(validated_data)
+
