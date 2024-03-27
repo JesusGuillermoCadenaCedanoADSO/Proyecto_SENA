@@ -6,6 +6,13 @@
 <main class="container">
     <div class="row">
         <section class="col-md-4 offset-md-4 mt-5">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
             <form action="/signin/" method="POST" class="card card-body">
                 <h1 class="text-center">Ingresar</h1>
 

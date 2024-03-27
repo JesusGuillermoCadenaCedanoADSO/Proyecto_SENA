@@ -80,15 +80,23 @@ def signup(request):
                     if not 'text/html' in request.META.get('HTTP_ACCEPT', ''):
                         return JsonResponse({'error': 'Las contraseñas no coinciden'}, status=400)
                     else:
-                        return render(request, 'signup.html', {'form': UserCreationForm, 'error': 'Las constraseñas no coinciden'})
-
-            user = User.objects.create_user(username=username, password=password1)
-            user.save()
-            if not 'text/html' in request.META.get('HTTP_ACCEPT', ''):
-                return JsonResponse({'message': 'Usuario creado correctamente'})
+                        messages.warning(request, 'Las constraseñas no coinciden')
+                        return render(request, 'signup.html', {'form': UserCreationForm})
+            try:
+                user = User.objects.create_user(username=username, password=password1)
+            except:
+                    if not 'text/html' in request.META.get('HTTP_ACCEPT', ''):
+                        return JsonResponse({'message': 'Usuario ya existe'})
+                    else:
+                        messages.warning(request, 'Usuario ya existe')
+                        return render(request, 'signup.html', {'form': UserCreationForm})
             else:
-                messages.success(request, 'Usuario creado correctamente')
-                return render(request, 'signup.html', {'form': UserCreationForm})
+                user.save()
+                if not 'text/html' in request.META.get('HTTP_ACCEPT', ''):
+                    return JsonResponse({'message': 'Usuario creado correctamente'})
+                else:
+                    messages.success(request, 'Usuario creado correctamente')
+                    return render(request, 'signup.html', {'form': UserCreationForm})
         else:
             return JsonResponse({'error': 'Método no permitido'}, status=405)
 
@@ -103,8 +111,8 @@ def signin(request):
         else:
             user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
             if user is None:
-                return render(request, 'signin.html', {'form': AuthenticationForm,
-                                                    'error': 'Username or password is incorrect'})
+                messages.warning(request, 'Nombre de usuario o contraseña incorrecto')
+                return render(request, 'signin.html', {'form': AuthenticationForm})
             else:
                 login(request, user)
                 return redirect('home')
@@ -115,8 +123,16 @@ def signin(request):
 
         elif request.method == 'POST':
             # Lógica para solicitudes POST
-            username = request.POST.get('username')
-            password = request.POST.get('password')
+            if request.content_type == 'application/json':
+                try:
+                    data = json.loads(request.body)
+                    username = data.get('username')
+                    password = data.get('password')
+                except json.JSONDecodeError:
+                    return JsonResponse({'error': 'Datos JSON inválidos'}, status=400)
+            else:
+                username = request.POST.get('username')
+                password = request.POST.get('password')
 
             user = authenticate(request, username=username, password=password)
             if user is not None:
@@ -241,12 +257,19 @@ def parametro_detail(request, parametro_id):
 def eliminar_parametro(request, parametro_id):
     parametro = get_object_or_404(Parametros, pk=parametro_id, user=request.user)
     if request.method == 'POST':
-        parametro.delete()
-        return redirect('listar_parametros')
+        try:
+            parametro.delete()
+            return redirect('listar_parametros')
+        except:
+            messages.warning(request, 'No se puede eliminar parametro ' + str(parametro_id) + ' por que tiene factor de conversión asociado')
+            return redirect('listar_parametros')
     elif request.method == 'DELETE':
     # Eliminar la unidad y devolver una respuesta de éxito
-        parametro.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            parametro.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return JsonResponse({'error': 'No se puede eliminar parametro por que tiene factor de conversión asociado'}, status=400)
 
 
 @api_view(['GET', 'POST'])
@@ -343,13 +366,20 @@ def eliminar_unidad(request, unidad_id):
 
     if request.method == 'POST':
         # Eliminar la unidad y redireccionar a la lista de unidades
-        unidad.delete()
-        return redirect('listar_unidades')
+        try:
+            unidad.delete()
+            return redirect('listar_unidades')
+        except:
+            messages.warning(request, 'No se puede eliminar unidad ' + str(unidad_id) + ' por que tiene factor de conversión asociado')
+            return redirect('listar_unidades')
     
     elif request.method == 'DELETE':
         # Eliminar la unidad y devolver una respuesta de éxito
-        unidad.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            unidad.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return JsonResponse({'error': 'No se puede eliminar unidad por que tiene factor de conversión asociado'}, status=400)
 
 
 
@@ -550,12 +580,19 @@ def cadena_detail(request, cadena_id):
 def eliminar_cadena(request, cadena_id):
     cadena = get_object_or_404(CadenaDeCustodia, pk=cadena_id, user=request.user)
     if request.method == 'POST':
-        cadena.delete()
-        return redirect('listar_cadenas')
+        try:
+            cadena.delete()
+            return redirect('listar_cadenas')
+        except:
+            messages.warning(request, 'No se puede eliminar cadena ' + str(cadena_id) + ' por que tiene mediciones asociadas')
+            return redirect('listar_cadenas')
     elif request.method == 'DELETE':
         # Eliminar la unidad y devolver una respuesta de éxito
-        cadena.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            cadena.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+           return JsonResponse({'error': 'No se puede eliminar cadena por que tiene mediciones asociadas'}, status=400)
 
 
 @api_view(['GET', 'POST'])
@@ -570,7 +607,7 @@ def crear_medicion(request):
         else:
             form = MedicionForm(request.POST)
             if form.is_valid():
-                datos_medicion = form.datos_medicion
+                datos_medicion = form.cleaned_data
                 nuevo_medicion = Mediciones(
                         cadena_custodia=datos_medicion['cadena_custodia'],
                         parametro=datos_medicion['parametro'],
@@ -694,6 +731,7 @@ def eliminar_medicion(request, medicion_id):
         # Eliminar la unidad y devolver una respuesta de éxito
         medicion.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 
 # funciones experimentales para probar api 
