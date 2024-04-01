@@ -24,7 +24,7 @@ class Parametros(models.Model):
 
     def get_absolute_url(self):
         """retorna la url del parametro."""
-        return reverse('parametro-detail', args=[str(self.id)])
+        return reverse('parametro_detail', args=[str(self.id)])
 
 
 
@@ -41,7 +41,7 @@ class UnidadDeMedicion(models.Model):
 
     def get_absolute_url(self):
         """retorna la url del parametro."""
-        return reverse('unidad-detail', args=[str(self.id)])
+        return reverse('unidad_detail', args=[str(self.id)])
 
 
 
@@ -60,7 +60,7 @@ class FactorDeConversion(models.Model):
         return self.parametro.nombre + ' de ' + self.unidad_origen.simbolo + ' a ' + self.unidad_destino.simbolo
 
     def get_absolute_url(self):
-        return reverse('factor-conversion-detail', args=[str(self.id)])
+        return reverse('factor_detail', args=[str(self.id)])
 
 
 class CadenaDeCustodia(models.Model):
@@ -89,7 +89,7 @@ class CadenaDeCustodia(models.Model):
 
 
     def get_absolute_url(self):
-        return reverse('cadena-de-custodia-detail', args=[str(self.id)])
+        return reverse('cadena_detail', args=[str(self.id)])
 
 
 class Mediciones(models.Model):
@@ -136,7 +136,7 @@ class Mediciones(models.Model):
                + ' por ' + self.user.username
 
     def get_absolute_url(self):
-        return reverse('cadena-de-custodia-detail', args=[str(self.id)])
+        return reverse('medicion_detail', args=[str(self.id)])
 
 
 
